@@ -1,0 +1,120 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Maevi API Resources created by shukri khalid for easy to managing RESTful API for Maevi R&D Team 
+
+# Parameters:
+#   FunctionsCodeBucket:
+#     Type: String
+#     Description: CodeBucket
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  # Api:
+  #   # Allows an application running locally * to call this API
+  #   Cors:
+  #     AllowMethods: "'OPTIONS,POST,GET,DELETE,PUT'"
+  #     AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,Api-Key,api-key'"
+  #     AllowOrigin: "'*'"
+  Function:
+    Timeout: 15
+    Runtime: nodejs12.x
+    MemorySize: 128
+    CodeUri: .
+
+Resources:
+  DynamoDBTableWarehouse:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: WarehouseId
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: WarehouseId
+          KeyType: HASH # Hash Key
+
+  DynamoDBTableProduct:
+    Type: AWS::DynamoDB::Table
+    # DeletionPolicy: Retain  ## NOT DELETED WENT STACK IS DELETE
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: WarehouseId
+          AttributeType: S
+        -
+          AttributeName: ProductId
+          AttributeType: S
+      KeySchema:
+        -
+          AttributeName: WarehouseId
+          KeyType: HASH # Hash Key
+        -
+          AttributeName: ProductId
+          KeyType: RANGE # Sort Key
+    
+  DynamoDBTableStockLog:
+    Type: AWS::DynamoDB::Table
+    # DeletionPolicy: Retain  ## NOT DELETED WENT STACK IS DELETE
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: ProductId
+          AttributeType: S
+        -
+          AttributeName: Timestamp
+          AttributeType: S
+        -
+          AttributeName: WarehouseId
+          AttributeType: S
+          
+      KeySchema:
+        -
+          AttributeName: ProductId
+          KeyType: HASH # Hash Key
+        -
+          AttributeName: Timestamp
+          KeyType: RANGE # Sort Key
+      GlobalSecondaryIndexes:
+        -
+          IndexName: "WarehouseId-index"
+          KeySchema: 
+            - 
+              AttributeName: "WarehouseId"
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+
+  WarehouseApi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      # Handler: app.lambdaHandler
+      Handler: index.lambdaHandler
+      # Runtime: nodejs12.x
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTableWarehouse
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTableProduct
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTableStockLog 
+      Environment:
+        Variables:
+          TABLE_WAREHOUSE: !Ref DynamoDBTableWarehouse
+          TABLE_PRODUCT: !Ref DynamoDBTableProduct    
+          TABLE_STOCK_LOG: !Ref DynamoDBTableStockLog    
+      Events:
+        Proxy:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+        Root:
+          Type: Api
+          Properties:
+            Path: /
+            Method: any
+        

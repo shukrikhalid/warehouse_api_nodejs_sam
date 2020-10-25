@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "noEmit": true,
+    "moduleResolution": "node",
+    "strict": true,               
+    "noImplicitAny": true,            
+    "strictNullChecks": true,         
+    "strictFunctionTypes": true,      
+    "noImplicitThis": true,           
+    "alwaysStrict": true,
+    "emitDecoratorMetadata": true,       
+    "outDir": "dist",
+    "target": "es6",
+    "module": "commonjs",
+    "lib": [
+      "ES2018",
+      "dom"
+    ]
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}
