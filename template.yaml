@@ -16,7 +16,7 @@ Globals:
       AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,Api-Key,api-key'"
       AllowOrigin: "'*'"
   Function:
-    Timeout: 15
+    Timeout: 30
     Runtime: nodejs12.x
     MemorySize: 128
     CodeUri: .
@@ -117,6 +117,14 @@ Resources:
           KeySchema: 
             -
               AttributeName: Email
+              KeyType: HASH # Second Hash Key (partition key)
+          Projection: 
+            ProjectionType: 'ALL'
+        -
+          IndexName: 'ProductId_index'
+          KeySchema: 
+            -
+              AttributeName: ProductId
               KeyType: HASH # Second Hash Key (partition key)
           Projection: 
             ProjectionType: 'ALL'

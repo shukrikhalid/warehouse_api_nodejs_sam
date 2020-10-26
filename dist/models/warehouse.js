@@ -15,11 +15,15 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
+
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 
 var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
 
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
 var _dynamoDbManager = _interopRequireDefault(require("./dynamoDbManager"));
 
@@ -33,14 +37,20 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
   var _super = _createSuper(Warehouse);
 
   function Warehouse() {
+    var _this;
+
+    var email = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
     (0, _classCallCheck2.default)(this, Warehouse);
-    return _super.apply(this, arguments);
+    _this = _super.call(this);
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "email", void 0);
+    _this.email = email;
+    return _this;
   }
 
   (0, _createClass2.default)(Warehouse, [{
     key: "scan",
     value: function scan() {
-      var _this = this;
+      var _this2 = this;
 
       return new Promise( /*#__PURE__*/function () {
         var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(resolve, reject) {
@@ -54,7 +64,7 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
                     TableName: process.env.TABLE_WAREHOUSE || ""
                   };
                   _context.next = 3;
-                  return _this.dynamodb.scan(params).promise().then(function (data) {
+                  return _this2.dynamodb.scan(params).promise().then(function (data) {
                     resolve(data.Items);
                   }, function (err) {
                     console.log(err);
@@ -77,7 +87,7 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
   }, {
     key: "createOrUpdate",
     value: function createOrUpdate(id, params) {
-      var _this2 = this;
+      var _this3 = this;
 
       return new Promise( /*#__PURE__*/function () {
         var _ref2 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(resolve, reject) {
@@ -86,7 +96,7 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
             while (1) {
               switch (_context2.prev = _context2.next) {
                 case 0:
-                  expression = _this2.createDynamoDBExpressionAttribute(params);
+                  expression = _this3.createDynamoDBExpressionAttribute(params);
                   paramsUpdated = {
                     TableName: process.env.TABLE_WAREHOUSE || "",
                     Key: {
@@ -97,7 +107,7 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
                     ExpressionAttributeValues: expression.AttributeValues
                   };
                   _context2.next = 4;
-                  return _this2.dynamodb.update(paramsUpdated).promise().then(function (data) {
+                  return _this3.dynamodb.update(paramsUpdated).promise().then(function (data) {
                     resolve();
                   }, function (err) {
                     console.log(err);
@@ -120,7 +130,7 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
   }, {
     key: "get",
     value: function get(id) {
-      var _this3 = this;
+      var _this4 = this;
 
       return new Promise( /*#__PURE__*/function () {
         var _ref3 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3(resolve, reject) {
@@ -140,7 +150,7 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
                     }
                   };
                   _context3.next = 3;
-                  return _this3.dynamodb.query(paramsUpdated).promise().then(function (data) {
+                  return _this4.dynamodb.query(paramsUpdated).promise().then(function (data) {
                     resolve(data.Items[0]);
                   }, function (err) {
                     console.log(err);
@@ -163,7 +173,7 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
   }, {
     key: "delete",
     value: function _delete(id) {
-      var _this4 = this;
+      var _this5 = this;
 
       return new Promise( /*#__PURE__*/function () {
         var _ref4 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4(resolve, reject) {
@@ -179,7 +189,7 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
                     }
                   };
                   _context4.next = 3;
-                  return _this4.dynamodb.delete(paramsUpdated).promise().then(function (data) {
+                  return _this5.dynamodb.delete(paramsUpdated).promise().then(function (data) {
                     resolve();
                   }, function (err) {
                     console.log(err);
@@ -196,6 +206,143 @@ var Warehouse = /*#__PURE__*/function (_DynamoDbManager) {
 
         return function (_x7, _x8) {
           return _ref4.apply(this, arguments);
+        };
+      }());
+    }
+  }, {
+    key: "userGetAll",
+    value: function userGetAll() {
+      var _this6 = this;
+
+      return new Promise( /*#__PURE__*/function () {
+        var _ref5 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee5(resolve, reject) {
+          var paramsQuery;
+          return _regenerator.default.wrap(function _callee5$(_context5) {
+            while (1) {
+              switch (_context5.prev = _context5.next) {
+                case 0:
+                  paramsQuery = {
+                    TableName: process.env.TABLE_WAREHOUSE,
+                    IndexName: 'Email_index',
+                    KeyConditionExpression: '#EKEY = :ekey',
+                    ExpressionAttributeValues: {
+                      ':ekey': _this6.email
+                    },
+                    ExpressionAttributeNames: {
+                      '#EKEY': 'Email'
+                    }
+                  };
+                  _context5.next = 3;
+                  return _this6.dynamodb.query(paramsQuery).promise().then(function (data) {
+                    resolve(data.Items);
+                  }, function (err) {
+                    console.log("ERROR [dynamoDB.query]:", JSON.stringify({
+                      params: paramsQuery,
+                      error: err
+                    }));
+                    reject(err);
+                  });
+
+                case 3:
+                case "end":
+                  return _context5.stop();
+              }
+            }
+          }, _callee5);
+        }));
+
+        return function (_x9, _x10) {
+          return _ref5.apply(this, arguments);
+        };
+      }());
+    }
+  }, {
+    key: "userCreateOrUpdate",
+    value: function userCreateOrUpdate(id, params) {
+      var _this7 = this;
+
+      return new Promise( /*#__PURE__*/function () {
+        var _ref6 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee6(resolve, reject) {
+          var expression, paramsUpdated;
+          return _regenerator.default.wrap(function _callee6$(_context6) {
+            while (1) {
+              switch (_context6.prev = _context6.next) {
+                case 0:
+                  params.Email = _this7.email;
+                  expression = _this7.createDynamoDBExpressionAttribute(params);
+                  paramsUpdated = {
+                    TableName: process.env.TABLE_WAREHOUSE || "",
+                    Key: {
+                      WarehouseId: id
+                    },
+                    UpdateExpression: expression.UpdateExpression,
+                    ExpressionAttributeNames: expression.AttributeNames,
+                    ExpressionAttributeValues: expression.AttributeValues
+                  };
+                  _context6.next = 5;
+                  return _this7.dynamodb.update(paramsUpdated).promise().then(function (data) {
+                    resolve();
+                  }, function (err) {
+                    console.log(err);
+                    reject(err);
+                  });
+
+                case 5:
+                case "end":
+                  return _context6.stop();
+              }
+            }
+          }, _callee6);
+        }));
+
+        return function (_x11, _x12) {
+          return _ref6.apply(this, arguments);
+        };
+      }());
+    }
+  }, {
+    key: "userGet",
+    value: function userGet(id) {
+      var _this8 = this;
+
+      return new Promise( /*#__PURE__*/function () {
+        var _ref7 = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee7(resolve, reject) {
+          var paramsQuery;
+          return _regenerator.default.wrap(function _callee7$(_context7) {
+            while (1) {
+              switch (_context7.prev = _context7.next) {
+                case 0:
+                  paramsQuery = {
+                    TableName: process.env.TABLE_WAREHOUSE || "",
+                    KeyConditionExpression: '#EKEY = :ekey',
+                    ExpressionAttributeNames: {
+                      '#EKEY': 'WarehouseId',
+                      '#Email': 'Email'
+                    },
+                    ExpressionAttributeValues: {
+                      ':ekey': id,
+                      ':email': _this8.email
+                    },
+                    FilterExpression: "#Email = :email"
+                  };
+                  _context7.next = 3;
+                  return _this8.dynamodb.query(paramsQuery).promise().then(function (data) {
+                    resolve(data.Items[0]);
+                  }, function (err) {
+                    console.log(err);
+                    reject(err);
+                  });
+
+                case 3:
+                case "end":
+                  return _context7.stop();
+              }
+            }
+          }, _callee7);
+        }));
+
+        return function (_x13, _x14) {
+          return _ref7.apply(this, arguments);
         };
       }());
     }

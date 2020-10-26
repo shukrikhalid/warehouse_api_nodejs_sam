@@ -17,15 +17,11 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _awsSdk = _interopRequireDefault(require("aws-sdk"));
+var _services = require("../utils/services");
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-var cognitoIdentityServiceProvider = new _awsSdk.default.CognitoIdentityServiceProvider({
-  apiVersion: '2016-04-18'
-});
 
 var AuthController = /*#__PURE__*/function () {
   function AuthController() {
@@ -58,7 +54,7 @@ var AuthController = /*#__PURE__*/function () {
                 buffDecodeAuth = Buffer.from(auth[1], 'base64');
                 decodeAuth = buffDecodeAuth.toString('ascii');
 
-                if (!isEmailFormat(decodeAuth.split(':')[0])) {
+                if (!(0, _services.isEmailFormat)(decodeAuth.split(':')[0])) {
                   _context2.next = 13;
                   break;
                 }
@@ -85,7 +81,7 @@ var AuthController = /*#__PURE__*/function () {
                   }
                 };
                 _context2.next = 18;
-                return cognitoIdentityServiceProvider.adminInitiateAuth(adminInitiateAuthparams).promise().then( /*#__PURE__*/function () {
+                return _services.cognitoIdentityServiceProvider.adminInitiateAuth(adminInitiateAuthparams).promise().then( /*#__PURE__*/function () {
                   var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee(data) {
                     return _regenerator.default.wrap(function _callee$(_context) {
                       while (1) {
@@ -138,7 +134,7 @@ var AuthController = /*#__PURE__*/function () {
               case 0:
                 params = _objectSpread({}, res.locals.params);
                 _context3.next = 3;
-                return verifyOAuth2Bearer(req.headers.authorization);
+                return (0, _services.verifyOAuth2Bearer)(req.headers.authorization);
 
               case 3:
                 user = _context3.sent;
@@ -159,7 +155,7 @@ var AuthController = /*#__PURE__*/function () {
 
                 };
                 _context3.next = 9;
-                return cognitoIdentityServiceProvider.globalSignOut(globalSignOutparams).promise().then(function (data) {
+                return _services.cognitoIdentityServiceProvider.globalSignOut(globalSignOutparams).promise().then(function (data) {
                   res.json({
                     message: 'Your has been successfully logout!'
                   });
@@ -205,7 +201,7 @@ var AuthController = /*#__PURE__*/function () {
                 }));
 
               case 3:
-                if (isEmailFormat(params.Email)) {
+                if ((0, _services.isEmailFormat)(params.Email)) {
                   _context5.next = 5;
                   break;
                 }
@@ -243,7 +239,7 @@ var AuthController = /*#__PURE__*/function () {
                   }]
                 };
                 _context5.next = 10;
-                return cognitoIdentityServiceProvider.signUp(signUpParams).promise().then(function (data) {
+                return _services.cognitoIdentityServiceProvider.signUp(signUpParams).promise().then(function (data) {
                   console.log("data", JSON.stringify(data));
                   res.json({
                     message: "Signup Success"
@@ -270,7 +266,7 @@ var AuthController = /*#__PURE__*/function () {
 
                             };
                             _context4.next = 5;
-                            return cognitoIdentityServiceProvider.adminGetUser(adminGetUserParams).promise().then(function (respAdminGetUser) {
+                            return _services.cognitoIdentityServiceProvider.adminGetUser(adminGetUserParams).promise().then(function (respAdminGetUser) {
                               console.log("respAdminGetUser", JSON.stringify(respAdminGetUser));
 
                               if (respAdminGetUser.UserStatus == "UNCONFIRMED") {
@@ -369,7 +365,7 @@ var AuthController = /*#__PURE__*/function () {
                   ForceAliasCreation: false
                 };
                 _context6.next = 8;
-                return cognitoIdentityServiceProvider.confirmSignUp(confirmSignUpParams).promise().then(function (data) {
+                return _services.cognitoIdentityServiceProvider.confirmSignUp(confirmSignUpParams).promise().then(function (data) {
                   /* process the data */
                   res.json({
                     status: true,
@@ -428,7 +424,7 @@ var AuthController = /*#__PURE__*/function () {
                   Username: params.Email
                 };
                 _context7.next = 6;
-                return cognitoIdentityServiceProvider.forgotPassword(forgotPasswordParams).promise().then(function (data) {
+                return _services.cognitoIdentityServiceProvider.forgotPassword(forgotPasswordParams).promise().then(function (data) {
                   res.json({
                     message: 'A confirmation code has been sent to your email. Use the code to reset your password.'
                   });
@@ -507,7 +503,7 @@ var AuthController = /*#__PURE__*/function () {
                   Password: params.Password
                 };
                 _context8.next = 10;
-                return cognitoIdentityServiceProvider.confirmForgotPassword(confirmForgotPasswordParams).promise().then(function (data) {
+                return _services.cognitoIdentityServiceProvider.confirmForgotPassword(confirmForgotPasswordParams).promise().then(function (data) {
                   res.json({
                     message: 'Your password has been successfully reset!'
                   });
@@ -546,7 +542,7 @@ var AuthController = /*#__PURE__*/function () {
               case 0:
                 params = _objectSpread({}, res.locals.params);
                 _context9.next = 3;
-                return verifyOAuth2Bearer(req.headers.authorization);
+                return (0, _services.verifyOAuth2Bearer)(req.headers.authorization);
 
               case 3:
                 user = _context9.sent;
@@ -582,7 +578,7 @@ var AuthController = /*#__PURE__*/function () {
 
               case 10:
                 _context9.next = 12;
-                return cognitoIdentityServiceProvider.changePassword({
+                return _services.cognitoIdentityServiceProvider.changePassword({
                   AccessToken: user.AccessToken,
                   PreviousPassword: params.OldPassword,
                   ProposedPassword: params.NewPassword
@@ -648,7 +644,7 @@ var AuthController = /*#__PURE__*/function () {
                   }
                 };
                 _context10.next = 6;
-                return cognitoIdentityServiceProvider.adminInitiateAuth(adminInitiateAuthParam).promise().then(function (data) {
+                return _services.cognitoIdentityServiceProvider.adminInitiateAuth(adminInitiateAuthParam).promise().then(function (data) {
                   return res.json({
                     data: data.AuthenticationResult
                   });
@@ -681,73 +677,3 @@ var AuthController = /*#__PURE__*/function () {
 }();
 
 exports.default = AuthController;
-
-function isEmailFormat(str) {
-  /****
-    To Check Date string is a valid email format
-  ****/
-  var EmailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return EmailRegex.test(str);
-}
-
-function verifyOAuth2Bearer(_x19) {
-  return _verifyOAuth2Bearer.apply(this, arguments);
-}
-
-function _verifyOAuth2Bearer() {
-  _verifyOAuth2Bearer = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee11(BearerToken) {
-    var AccessToken, resp;
-    return _regenerator.default.wrap(function _callee11$(_context11) {
-      while (1) {
-        switch (_context11.prev = _context11.next) {
-          case 0:
-            if (/^[Bb]earer [-0-9a-zA-z\.]*$/.test(BearerToken)) {
-              _context11.next = 2;
-              break;
-            }
-
-            return _context11.abrupt("return", {
-              status: false,
-              error: "invalid authorization format"
-            });
-
-          case 2:
-            /* GET ONLY ACCESS TOKEN WITH WORD 'Bearer' */
-            AccessToken = BearerToken.split(" ")[1]; // console.log("AccessToken ",AccessToken)
-
-            _context11.next = 5;
-            return cognitoIdentityServiceProvider.getUser({
-              AccessToken: AccessToken
-              /* required */
-
-            }).promise().then(function (data) {
-              /* process the data */
-              // console.log("data", JSON.stringify(data))
-              console.log(`VERIFY   => USER : ${data.Username}`);
-              return {
-                status: true,
-                Email: data.Username,
-                AccessToken: AccessToken
-              };
-            }, function (error) {
-              /* handle the error */
-              console.log("ERROR [getUser]:", JSON.stringify(error));
-              return {
-                status: false,
-                error: error.message
-              };
-            });
-
-          case 5:
-            resp = _context11.sent;
-            return _context11.abrupt("return", resp);
-
-          case 7:
-          case "end":
-            return _context11.stop();
-        }
-      }
-    }, _callee11);
-  }));
-  return _verifyOAuth2Bearer.apply(this, arguments);
-}
