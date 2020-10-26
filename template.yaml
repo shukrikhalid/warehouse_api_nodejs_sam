@@ -9,12 +9,12 @@ Description: Maevi API Resources created by shukri khalid for easy to managing R
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
-  # Api:
-  #   # Allows an application running locally * to call this API
-  #   Cors:
-  #     AllowMethods: "'OPTIONS,POST,GET,DELETE,PUT'"
-  #     AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,Api-Key,api-key'"
-  #     AllowOrigin: "'*'"
+  Api:
+    # Allows an application running locally * to call this API
+    Cors:
+      AllowMethods: "'OPTIONS,POST,GET,DELETE,PUT'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,Api-Key,api-key'"
+      AllowOrigin: "'*'"
   Function:
     Timeout: 15
     Runtime: nodejs12.x
@@ -22,6 +22,48 @@ Globals:
     CodeUri: .
 
 Resources:
+  CognitoUserPool:
+    Type: 'AWS::Cognito::UserPool'
+    Properties:
+      UserPoolName: staging-SKWarehouseUserPool
+
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+        UnusedAccountValidityDays: 1
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: false
+      Schema:
+        - 
+          AttributeDataType: String
+          Mutable: true
+          Name: email
+          Required: true
+      EmailVerificationSubject: '[SKWarehouse] - Verification Code' 
+      EmailVerificationMessage: 'Your verification code is {####}'
+      AdminCreateUserConfig:
+        InviteMessageTemplate:
+          EmailSubject: 'Welcome to SKWarehouse Application'
+          EmailMessage: 'Your username is your email {username} and temporary password is {####}. Please login in SKWarehouse Apps'
+          # SMSMessage: 'RM0 [SKWarehouse] your temporary password is {####}'  
+        # UnusedAccountValidityDays: 7
+        # AllowAdminCreateUserOnly: false
+
+  CognitoUserPoolClient:
+    Type: 'AWS::Cognito::UserPoolClient'
+    Properties:
+      ExplicitAuthFlows: 
+        - ADMIN_NO_SRP_AUTH
+      GenerateSecret: false
+      RefreshTokenValidity: 1
+      UserPoolId: !Ref CognitoUserPool
+
   DynamoDBTableWarehouse:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -30,10 +72,22 @@ Resources:
         -
           AttributeName: WarehouseId
           AttributeType: S
+        -
+          AttributeName: Email
+          AttributeType: S
       KeySchema:
         -
           AttributeName: WarehouseId
           KeyType: HASH # Hash Key
+      GlobalSecondaryIndexes:
+        -
+          IndexName: 'Email_index'
+          KeySchema: 
+            -
+              AttributeName: Email
+              KeyType: HASH # Second Hash Key (partition key)
+          Projection: 
+            ProjectionType: 'ALL'
 
   DynamoDBTableProduct:
     Type: AWS::DynamoDB::Table
@@ -47,6 +101,9 @@ Resources:
         -
           AttributeName: ProductId
           AttributeType: S
+        -
+          AttributeName: Email
+          AttributeType: S
       KeySchema:
         -
           AttributeName: WarehouseId
@@ -54,6 +111,15 @@ Resources:
         -
           AttributeName: ProductId
           KeyType: RANGE # Sort Key
+      GlobalSecondaryIndexes:
+        -
+          IndexName: 'Email_index'
+          KeySchema: 
+            -
+              AttributeName: Email
+              KeyType: HASH # Second Hash Key (partition key)
+          Projection: 
+            ProjectionType: 'ALL'
     
   DynamoDBTableStockLog:
     Type: AWS::DynamoDB::Table
@@ -87,7 +153,12 @@ Resources:
               KeyType: "HASH"
           Projection:
             ProjectionType: ALL
-
+  
+  WarehouseApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Staging
+      
   WarehouseApi:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -101,20 +172,31 @@ Resources:
             TableName: !Ref DynamoDBTableProduct
         - DynamoDBCrudPolicy:
             TableName: !Ref DynamoDBTableStockLog 
+        - Statement:
+          - Sid: CognitoIdpPolicy
+            Effect: Allow
+            Action:
+            - cognito-idp:*
+            Effect: Allow
+            Resource: "*"
       Environment:
         Variables:
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPool 
+          COGNITO_CLIENT_ID: !Ref CognitoUserPoolClient
           TABLE_WAREHOUSE: !Ref DynamoDBTableWarehouse
           TABLE_PRODUCT: !Ref DynamoDBTableProduct    
-          TABLE_STOCK_LOG: !Ref DynamoDBTableStockLog    
+          TABLE_STOCK_LOG: !Ref DynamoDBTableStockLog   
       Events:
         Proxy:
           Type: Api
           Properties:
+            RestApiId: !Ref WarehouseApiGateway
             Path: /{proxy+}
             Method: any
         Root:
           Type: Api
           Properties:
+            RestApiId: !Ref WarehouseApiGateway
             Path: /
             Method: any
         
