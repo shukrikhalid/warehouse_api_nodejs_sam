@@ -165,7 +165,7 @@ export default class ProductController {
       return res.status(400).json({error: 'Parameter [total] value is must in number' });
     }
     if(params.total <= 0) {
-      return res.status(400).json({error: 'Parameter [total] value is not equal to 0 or less than 0' });
+      return res.status(400).json({error: 'Parameter [total] value is cannot equal to 0 or less than 0' });
     }
 
 
