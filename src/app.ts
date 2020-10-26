@@ -34,7 +34,13 @@ app.all('*', (req: any, res: any) => {
 
 // error-handling middleware functions
 app.use( (err: any, req: any, res: any, next: any) => {
-  console.error(err.stack)
+
+  if(err.type == "entity.parse.failed"){
+    return res.status(400).json({ error: "invalid JSON format in body, Please check again your body" });
+  }
+
+  console.error(err)
+  
   res.status(500).json({
     error: "Internal Server Error" 
   });
