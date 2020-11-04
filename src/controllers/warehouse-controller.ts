@@ -14,7 +14,7 @@ export default class WarehouseController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
 
     const warehouse = new Warehouse(user.Email)
@@ -27,7 +27,7 @@ export default class WarehouseController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
 
     let params:any 
@@ -47,7 +47,7 @@ export default class WarehouseController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
 
     const WarehouseId = getId(req.url)
@@ -68,7 +68,7 @@ export default class WarehouseController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error });
+      return res.status(401).json({error: user.error });
     }
 
     const WarehouseId = getId(req.url)
@@ -94,7 +94,7 @@ export default class WarehouseController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
 
     const WarehouseId = getId(req.url)

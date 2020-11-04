@@ -64,7 +64,7 @@ export default class AuthController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
 
     var globalSignOutparams = {
@@ -252,7 +252,7 @@ export default class AuthController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
     if(params.OldPassword == undefined && params.OldPassword == null) {
       return res.status(400).json({error: 'Parameter [OldPassword] is required and cannot be blank' });

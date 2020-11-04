@@ -13,7 +13,7 @@ export default class ProductController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
 
     const product = new Product(user.Email)
@@ -35,7 +35,7 @@ export default class ProductController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
 
     let params:any 
@@ -71,7 +71,7 @@ export default class ProductController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
 
     const ProductId = getId(req.url)
@@ -92,7 +92,7 @@ export default class ProductController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error });
+      return res.status(401).json({error: user.error });
     }
 
     const ProductId = getId(req.url)
@@ -120,7 +120,7 @@ export default class ProductController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error }, 401);
+      return res.status(401).json({error: user.error });
     }
 
     const ProductId = getId(req.url)
@@ -144,7 +144,7 @@ export default class ProductController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error });
+      return res.status(401).json({error: user.error });
     }
 
     const ProductId = getId(req.url)
@@ -214,7 +214,7 @@ export default class ProductController {
     user = await verifyOAuth2Bearer(req.headers.authorization);
 
     if(!user.status) {
-      return res.status(400).json({error: user.error });
+      return res.status(401).json({error: user.error });
     }
 
     const ProductId = getId(req.url.replace('/logger','') )
